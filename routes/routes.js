@@ -3,13 +3,15 @@ const {registerUser, loginUser} = require('../controllers/userController')
 
 const router = express.Router()
 
-//signup
-router.post('/',registerUser)
-//router.get('/', (req,res) => res.render('signup'))
+router.post('/signup',registerUser)
+router.get('/signup', (req,res) => res.render('signup'))
 
  
-router.get('/login',loginUser)
+router.get('/login',(req,res) => {
+    loginUser(req,res);
+    res.render('login')
+})
 
-router.get('/dashboard',(req,res) => res.send('dashboard'))
+router.get('/',(req,res) => res.send('dashboard'))
 
 module.exports = router
