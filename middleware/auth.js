@@ -1,34 +1,53 @@
 const jwt = require('jsonwebtoken')
 const asyncHandler = require('express-async-handler')
-const User = require('../models/User')
+const User = require('../models/User');
 
-const protect = asyncHandler(async (req,res,next) => {
-    let token
 
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')){
-        try{
-            token = req.headers.authorization.split('  ')[1]
-           
-            const decoded = jwt.verify(token , process.env.JWT_SECRET)
-            
-            req.user = await User.findById(decoded.id).select('-password')
+const protectRoutes = asyncHandler(async (req,res,next) => {
+   const token = req.cookies.jwt;
 
-            next()
+   if(token){
+
+    jwt.verify(token,process.env.JWT_SECRET, (err,decoded) => {
+        if(err){
+            console.log(err.message)
+        }else{
+            console.log(decoded)
+            next()  
         }
-        catch (err){
-            console.log(err)
-            res.status(401)
-            throw new Error ('Not authorized')
-        }
+    })
+
+   }else{
+    res.redirect('/login')
+   }
+})
 
 
-        if(!token){
-            res.status(401)
-            throw new Error ('Not authorized')
-        }
-    }
+
+const checkUser = asyncHandler( (req,res,next) => {
+    const token = req.cookies.jwt;
+
+    if(token){
+
+        jwt.verify(token,process.env.JWT_SECRET, async (err,decoded) => {
+            if(err){
+                res.locals.user = null
+                console.log(err)
+                next()
+            }else{
+                let user =  await User.findById(decoded.id)
+                res.locals.user = user;
+                next()  
+            }
+        })
+    
+       }else{
+         res.locals.user = null
+         next()
+       }
 })
 
 module.exports = {
-    protect
+    protectRoutes,
+    checkUser,
 }

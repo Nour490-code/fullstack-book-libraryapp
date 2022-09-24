@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 const port = process.env.PORT || 5000
 const {connectDB} = require('./db_config/connect')
 const cookieParser = require('cookie-parser')
+const {protectRoutes} = require('./middleware/auth');
 
 //connecting to mongoDB
 connectDB();
@@ -21,7 +22,7 @@ app.set('view engine','ejs')
 
 //adding the routes
 app.use(require('./routes/routes'));
-
+app.use(protectRoutes);
 
 
 

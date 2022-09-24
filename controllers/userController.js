@@ -38,21 +38,32 @@ const registerUser = asyncHandler(async (req,res) =>{
 const loginUser = asyncHandler(async(req,res) => {
     const {email,password} = req.body
 
-    //Finding the user
-    const user = await User.findOne({email})
+    try{
 
-    // Decoding the password to compare it with the entred password
-    if( user && (await bcrypt.compare(password,user.password))){
-        res.status(201).json({
-            _id:user.id,
-            name: user.name,
-            email: user.email,
-            token: genToken(user._id)
-        })
-    }else{
-        res.status(400)
-        throw new Error ('invalid')
+        //Finding the user
+        const user = await User.findOne({email})
+
+        // Decoding the password to compare it with the entred password
+        if( user && (await bcrypt.compare(password,user.password))){
+            
+            const token = genToken(user.id)
+
+            res.cookie('jwt',token,{httpOnly: true, maxAge: 2 * 24 * 60 * 60 * 1000})
+            res.status(201).json({user: user._id})
+        }
+        else{
+            throw new Error('incorrect email or password')
+        }
     }
+    catch(err){
+        const errors  = handleErrs(err);
+        res.status(400).json({errors})
+    }
+})
+
+const logOut = asyncHandler(async(req,res) => {
+    res.cookie('jwt','',{maxAge: 1});
+    res.redirect('/login');
 })
 
 
@@ -66,5 +77,6 @@ const genToken = (id) => {
 
 module.exports = {
     registerUser,
-    loginUser
+    loginUser,
+    logOut,
 }

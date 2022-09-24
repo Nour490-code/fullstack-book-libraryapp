@@ -12,21 +12,13 @@
         <h2>Email</h2>
         <label for="email"></label>
         <input type="email" name="email" required>
-        <div class="email error"></div>\
         <h2>Password</h2>
         <label for="Password"></label>
         <input type="password" name="password" required>
-        <div class="password error"></div>
+        <div class="login error"></div>
         <button>Log in</button>
+        <a href="/signup">Sign up</a>
     </form>
-    <script>
-        const form = document.querySelector('form');
-        form.addEventListener('submit',(e) => {
-            e.preventDefault();
-            const email = form.email.value;
-            const password = form.password.value;
-
-        })
-    </script>
+    <script src="/js/login.js"></script>
 </body>
 </html>
